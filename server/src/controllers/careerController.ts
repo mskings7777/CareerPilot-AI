@@ -294,19 +294,38 @@ export const getDashboard = async (
   try {
     const userId = req.user!._id;
 
-    const [resumeCount, latestResume, latestRecommendation] = await Promise.all([
+    const [resumeCount, latestResume] = await Promise.all([
       Resume.countDocuments({ userId }),
       Resume.findOne({ userId }).sort({ createdAt: -1 }).select('parsed.skills originalFilename createdAt'),
-      Recommendation.findOne({ userId })
-        .sort({ createdAt: -1 })
-        .select('careerPaths skillGap createdAt'),
     ]);
 
     const topSkills = latestResume?.parsed?.skills?.slice(0, 10) || [];
-    const topCareerMatches =
-      latestRecommendation?.careerPaths
-        ?.sort((a, b) => b.matchScore - a.matchScore)
-        .slice(0, 5) || [];
+    
+    // Calculate career matches on-the-fly based on latest resume's skills
+    let topCareerMatches: {
+      title: string;
+      matchScore: number;
+    }[] = [];
+    let skillGapPercentage = 0;
+
+    if (latestResume?.parsed?.skills && latestResume.parsed.skills.length > 0) {
+      const careerMatches = await recommendCareers(latestResume.parsed.skills);
+      topCareerMatches = careerMatches.slice(0, 5).map((match) => ({
+        title: match.careerPath.title,
+        matchScore: match.matchScore,
+      }));
+
+      // Calculate average skill gap from top matches
+      if (careerMatches.length > 0) {
+        const totalMissing = careerMatches
+          .slice(0, 5)
+          .reduce((sum, m) => sum + m.missingSkills.length, 0);
+        const totalRequired = careerMatches
+          .slice(0, 5)
+          .reduce((sum, m) => sum + m.matchedSkills.length + m.missingSkills.length, 0);
+        skillGapPercentage = totalRequired > 0 ? Math.round((totalMissing / totalRequired) * 100) : 0;
+      }
+    }
 
     res.json({
       success: true,
@@ -314,8 +333,8 @@ export const getDashboard = async (
         stats: {
           resumesUploaded: resumeCount,
           skillsIdentified: latestResume?.parsed?.skills?.length || 0,
-          careerMatchesFound: latestRecommendation?.careerPaths?.length || 0,
-          skillGapPercentage: latestRecommendation?.skillGap?.gapPercentage || 0,
+          careerMatchesFound: topCareerMatches.length,
+          skillGapPercentage,
         },
         topSkills,
         topCareerMatches,

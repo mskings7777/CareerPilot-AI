@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { careerApi } from '../lib/api';
 import type { DashboardData } from '../types';
 import { FileText, Target, Compass, TrendingUp, Upload, ArrowRight } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import toast from 'react-hot-toast';
 
 const Dashboard = () => {
@@ -61,13 +60,19 @@ const Dashboard = () => {
 
   const chartData =
     data?.topCareerMatches?.map((m) => ({
-      name: m.title.length > 18 ? m.title.substring(0, 18) + '...' : m.title,
+      name: m.title.length > 22 ? m.title.substring(0, 22) + '...' : m.title,
+      fullName: m.title,
       score: m.matchScore,
     })) || [];
 
-  const barColors = ['#0369a1', '#0284c7', '#0ea5e9', '#38bdf8', '#7dd3fc'];
-
   const hasData = (data?.stats.resumesUploaded || 0) > 0;
+
+  // Get color based on score
+  const getScoreColor = (score: number) => {
+    if (score >= 70) return { bar: '#10b981', bg: '#d1fae5', text: '#065f46' }; // green
+    if (score >= 50) return { bar: '#0ea5e9', bg: '#e0f2fe', text: '#0369a1' }; // blue
+    return { bar: '#f59e0b', bg: '#fef3c7', text: '#92400e' }; // amber
+  };
 
   return (
     <div className="space-y-8">
@@ -113,23 +118,48 @@ const Dashboard = () => {
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Career Matches Chart */}
           <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Top Career Matches</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">Top Career Matches</h2>
+              <Link 
+                to="/careers" 
+                className="text-sm text-ocean-600 hover:text-ocean-700 font-medium"
+              >
+                View all
+              </Link>
+            </div>
             {chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={chartData} layout="vertical" margin={{ left: 10 }}>
-                  <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12 }} />
-                  <YAxis type="category" dataKey="name" width={130} tick={{ fontSize: 12 }} />
-                  <Tooltip
-                    formatter={(value) => [`${value}%`, 'Match Score']}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
-                  />
-                  <Bar dataKey="score" radius={[0, 4, 4, 0]}>
-                    {chartData.map((_, i) => (
-                      <Cell key={i} fill={barColors[i % barColors.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="space-y-4">
+                {chartData.map((career, index) => {
+                  const colors = getScoreColor(career.score);
+                  return (
+                    <div key={index} className="group">
+                      <div className="flex items-center justify-between mb-2">
+                        <span 
+                          className="text-sm font-medium text-gray-700 truncate max-w-[200px]"
+                          title={career.fullName}
+                        >
+                          {career.name}
+                        </span>
+                        <span 
+                          className="text-sm font-semibold px-2 py-0.5 rounded-full"
+                          style={{ backgroundColor: colors.bg, color: colors.text }}
+                        >
+                          {career.score}%
+                        </span>
+                      </div>
+                      <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-500 ease-out"
+                          style={{
+                            width: `${career.score}%`,
+                            background: `linear-gradient(90deg, ${colors.bar} 0%, ${colors.bar}dd 100%)`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
               <p className="text-gray-500 text-center py-12">No career matches yet.</p>
             )}
