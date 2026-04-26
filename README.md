@@ -9,7 +9,7 @@ AI-driven career guidance platform that analyzes resumes, identifies skill gaps,
 | Frontend | React, TypeScript, Tailwind CSS, Vite   |
 | Backend  | Node.js, Express, TypeScript            |
 | Database | MongoDB (Mongoose)                      |
-| AI/NLP   | Custom skill extraction, scoring engine |
+| AI/NLP   | Python NLP pipeline, TF-IDF scoring, text similarity |
 | Auth     | JWT, bcrypt                             |
 | Docs     | Swagger/OpenAPI                         |
 
@@ -53,6 +53,7 @@ CareerPilot-AI/
 ### Prerequisites
 
 - Node.js 18+
+- Python 3
 - MongoDB running locally or a MongoDB Atlas connection string
 
 ### Setup

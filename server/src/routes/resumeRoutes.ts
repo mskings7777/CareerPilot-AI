@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import multer from 'multer';
-import path from 'path';
 import {
   uploadResume,
   getResumes,
@@ -9,18 +8,6 @@ import {
   deleteResume,
 } from '../controllers';
 import { authenticate } from '../middleware';
-
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, path.resolve(__dirname, '../../uploads'));
-  },
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const ext = path.extname(file.originalname);
-    cb(null, `resume-${uniqueSuffix}${ext}`);
-  },
-});
 
 const fileFilter = (
   _req: Express.Request,
@@ -39,7 +26,7 @@ const fileFilter = (
 };
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter,
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB max

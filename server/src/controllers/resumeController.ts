@@ -31,16 +31,16 @@ export const uploadResume = async (
     }
 
     // Extract text from file
-    const rawText = await extractTextFromFile(file.path, fileType);
+    const rawText = await extractTextFromFile(file.buffer, fileType);
 
     // Parse the extracted text
-    const parsed = parseResumeText(rawText);
+    const parsed = await parseResumeText(rawText);
 
     // Create resume record
     const resume = await Resume.create({
       userId: req.user!._id,
       originalFilename: file.originalname,
-      filePath: file.path,
+      filePath: `memory:${file.originalname}`,
       fileType,
       rawText,
       parsed,

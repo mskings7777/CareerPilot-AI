@@ -39,3 +39,4 @@ server/uploads/*
 
 # TypeScript
 *.tsbuildinfo
+.vercel
