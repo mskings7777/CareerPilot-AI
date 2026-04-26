@@ -85,6 +85,39 @@ export interface Resume {
   updatedAt: string;
 }
 
+export interface ResumeTargetRole {
+  careerPathId: string;
+  title: string;
+  matchScore: number;
+  matchedSkills: string[];
+  missingSkills: string[];
+}
+
+export interface ResumeImprovementSuggestion {
+  area: 'summary' | 'experience' | 'projects' | 'skills' | 'keywords';
+  priority: 'high' | 'medium' | 'low';
+  title: string;
+  detail: string;
+  action: string;
+}
+
+export interface ResumeProjectSuggestion {
+  title: string;
+  targetCareer: string;
+  summary: string;
+  skillsToPractice: string[];
+  deliverables: string[];
+  whyItHelps: string;
+  resumeBullet: string;
+}
+
+export interface ResumeCoachReport {
+  targetRoles: ResumeTargetRole[];
+  focusSkills: string[];
+  improvementSuggestions: ResumeImprovementSuggestion[];
+  projectSuggestions: ResumeProjectSuggestion[];
+}
+
 // Career types
 export interface CareerPath {
   _id: string;

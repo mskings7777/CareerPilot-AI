@@ -12,6 +12,7 @@ export {
   uploadResume,
   getResumes,
   getResumeById,
+  getResumeSuggestions,
   deleteResume,
 } from './resumeController';
 

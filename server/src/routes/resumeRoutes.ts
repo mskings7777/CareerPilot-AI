@@ -1,7 +1,13 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
-import { uploadResume, getResumes, getResumeById, deleteResume } from '../controllers';
+import {
+  uploadResume,
+  getResumes,
+  getResumeById,
+  getResumeSuggestions,
+  deleteResume,
+} from '../controllers';
 import { authenticate } from '../middleware';
 
 // Configure multer for file uploads
@@ -75,6 +81,21 @@ router.post('/upload', upload.single('resume'), uploadResume);
  *     security: [{ bearerAuth: [] }]
  */
 router.get('/', getResumes);
+
+/**
+ * @swagger
+ * /api/resume/{id}/suggestions:
+ *   get:
+ *     summary: Get resume improvement suggestions and project ideas
+ *     tags: [Resume]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ */
+router.get('/:id/suggestions', getResumeSuggestions);
 
 /**
  * @swagger

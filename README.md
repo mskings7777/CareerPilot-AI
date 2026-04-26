@@ -45,6 +45,7 @@ CareerPilot-AI/
 - **Skill Gap Analysis** — Compare user skills against career requirements with category breakdowns
 - **Career Recommendations** — AI scoring engine matching skills to career paths with explanations
 - **Learning Roadmaps** — Phase-by-phase learning paths with courses and certifications
+- **Resume Coaching** — Tailored resume improvement suggestions and portfolio project ideas based on parsed skills and top-fit roles
 - **Dashboard Analytics** — Visual charts showing skills, career matches, and gap percentages
 
 ## Getting Started
@@ -91,6 +92,7 @@ Visit `http://localhost:5000/api-docs` for Swagger UI.
 | POST   | `/api/resume/upload`              | Upload and parse resume        |
 | GET    | `/api/resume`                     | List user's resumes            |
 | GET    | `/api/resume/:id`                 | Get resume details             |
+| GET    | `/api/resume/:id/suggestions`     | Get resume coaching report     |
 | DELETE | `/api/resume/:id`                 | Delete resume                  |
 | GET    | `/api/career/dashboard`           | Dashboard analytics            |
 | GET    | `/api/career/paths`               | List all career paths          |

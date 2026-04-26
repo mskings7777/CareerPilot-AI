@@ -57,6 +57,7 @@ export const resumeApi = {
   },
   getAll: () => api.get('/resume'),
   getById: (id: string) => api.get(`/resume/${id}`),
+  getSuggestions: (id: string) => api.get(`/resume/${id}/suggestions`),
   delete: (id: string) => api.delete(`/resume/${id}`),
 };
 

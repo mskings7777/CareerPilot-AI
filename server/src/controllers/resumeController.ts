@@ -2,7 +2,7 @@ import { Response, NextFunction } from 'express';
 import path from 'path';
 import { Resume } from '../models';
 import { AuthRequest, AppError } from '../middleware';
-import { extractTextFromFile, parseResumeText } from '../services';
+import { extractTextFromFile, parseResumeText, generateResumeCoachReport } from '../services';
 
 /**
  * @route   POST /api/resume/upload
@@ -52,11 +52,15 @@ export const uploadResume = async (
       success: true,
       message: 'Resume uploaded and parsed successfully.',
       data: {
-        id: resume._id,
+        _id: resume._id,
+        userId: resume.userId,
         originalFilename: resume.originalFilename,
+        fileType: resume.fileType,
         parsed: resume.parsed,
         isProcessed: resume.isProcessed,
         processedAt: resume.processedAt,
+        createdAt: resume.createdAt,
+        updatedAt: resume.updatedAt,
       },
     });
   } catch (error) {
@@ -109,6 +113,40 @@ export const getResumeById = async (
     res.json({
       success: true,
       data: resume,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @route   GET /api/resume/:id/suggestions
+ * @desc    Get personalized resume improvement suggestions and project ideas
+ */
+export const getResumeSuggestions = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const resume = await Resume.findOne({
+      _id: req.params.id,
+      userId: req.user!._id,
+    });
+
+    if (!resume) {
+      throw new AppError('Resume not found.', 404);
+    }
+
+    if (!resume.isProcessed || !resume.parsed.skills.length) {
+      throw new AppError('Resume has not been processed yet or no skills were extracted.', 400);
+    }
+
+    const report = await generateResumeCoachReport(resume);
+
+    res.json({
+      success: true,
+      data: report,
     });
   } catch (error) {
     next(error);
